@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle, Circle, Target, Zap } from "lucide-react";
+import { CheckCircle, Circle, Target } from "lucide-react";
 import { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -1419,89 +1419,121 @@ export default function Page() {
                       mutationRecipes[seedKey as keyof typeof mutationRecipes];
 
                     return (
-                      <Button
+                      <div
                         key={seedKey}
-                        onClick={() => toggleSeed(seedKey)}
-                        variant={isOwned ? "default" : "outline"}
-                        className={`h-auto min-h-[280px] w-full flex-col p-4 transition-all hover:scale-105 ${
-                          canBeUnlocked && !isOwned ? "animate-pulse" : ""
+                        className={`relative overflow-hidden rounded-lg border transition-all duration-200 hover:scale-[1.02] hover:shadow-md ${
+                          isOwned
+                            ? "border-green-200 bg-green-50 shadow-sm"
+                            : canBeUnlocked
+                              ? "border-amber-300 bg-amber-50 shadow-sm ring-2 ring-amber-200"
+                              : "border-gray-200 bg-white"
                         }`}
                       >
-                        {/* Header avec index et statut */}
-                        <div className="mb-3 flex w-full items-center justify-between">
-                          <Badge
-                            variant="outline"
-                            className={`font-medium text-xs ${
-                              isOwned
-                                ? "border-primary-foreground bg-primary-foreground text-primary"
-                                : "border-border bg-background text-foreground"
-                            }`}
-                          >
-                            #{index + 1}
-                          </Badge>
-                          {isOwned ? (
-                            <CheckCircle
-                              className={`${isOwned ? "text-primary-foreground" : "text-green-500"}`}
-                              size={18}
-                            />
-                          ) : (
-                            <Circle className="text-gray-300" size={18} />
-                          )}
-                        </div>
-
-                        {/* Emoji */}
-                        <div className="mb-3 text-3xl">{seed.emoji}</div>
-
-                        {/* Nom de la graine */}
-                        <div className="mb-3 px-1 text-center font-semibold text-sm leading-tight">
-                          {seed.name}
-                        </div>
-
-                        {/* Badges de rareté et difficulté */}
-                        <div className="mb-3 flex w-full flex-col gap-2">
-                          <Badge
-                            variant={getRarityVariant(seed.rarity)}
-                            className="py-1 text-xs"
-                          >
-                            {seed.rarity}
-                          </Badge>
-
-                          {recipe && (
+                        <Button
+                          onClick={() => toggleSeed(seedKey)}
+                          variant="ghost"
+                          className="h-full w-full flex-col gap-3 p-4 hover:bg-transparent"
+                        >
+                          {/* Header avec index et statut */}
+                          <div className="flex w-full items-start justify-between">
                             <Badge
-                              variant={getDifficultyVariant(recipe.difficulty)}
-                              className="py-1 text-xs"
+                              variant="outline"
+                              className="font-medium text-xs"
                             >
-                              {recipe.difficulty}
+                              #{index + 1}
                             </Badge>
-                          )}
-                        </div>
-
-                        {/* Informations détaillées */}
-                        <div className="mb-3 flex flex-col gap-1 text-center text-xs opacity-75">
-                          <div>
-                            Maturité:{" "}
-                            {seed.maturity === 0
-                              ? "Immortel"
-                              : `${seed.maturity} ticks`}
+                            <div className="flex items-center gap-1">
+                              {canBeUnlocked && !isOwned && (
+                                <Badge
+                                  variant="default"
+                                  className="bg-amber-500 px-2 py-1 text-white text-xs hover:bg-amber-600"
+                                >
+                                  Prêt
+                                </Badge>
+                              )}
+                              {isOwned ? (
+                                <CheckCircle
+                                  className="text-green-600"
+                                  size={18}
+                                />
+                              ) : (
+                                <Circle className="text-gray-300" size={18} />
+                              )}
+                            </div>
                           </div>
-                          {recipe && <div>Chance: {recipe.chance}</div>}
-                        </div>
 
-                        {/* Indicateur de disponibilité */}
-                        <div className="mt-auto flex min-h-[2.5rem] items-center justify-center">
-                          {canBeUnlocked && !isOwned && (
+                          {/* Section principale */}
+                          <div className="flex flex-col items-center gap-3">
+                            {/* Emoji et nom */}
                             <div className="text-center">
-                              <Zap
-                                className="mx-auto mb-1 text-yellow-500"
-                                size={18}
-                              />
-                              <div className="font-medium text-xs text-yellow-600">
-                                Disponible !
+                              <div className="mb-2 text-4xl">{seed.emoji}</div>
+                              <div className="px-1 font-semibold text-sm leading-tight">
+                                {seed.name}
                               </div>
                             </div>
-                          )}
-                        </div>
-                      </Button>
+
+                            {/* Badges organisés */}
+                            <div className="flex w-full flex-col gap-2">
+                              <Badge
+                                variant={getRarityVariant(seed.rarity)}
+                                className="w-full justify-center py-1 text-xs"
+                              >
+                                {seed.rarity}
+                              </Badge>
+
+                              {recipe && (
+                                <Badge
+                                  variant={getDifficultyVariant(
+                                    recipe.difficulty,
+                                  )}
+                                  className="w-full justify-center py-1 text-xs"
+                                >
+                                  {recipe.difficulty}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Informations techniques */}
+                          <div className="mt-auto w-full space-y-2">
+                            <Separator className="my-2" />
+                            <div className="grid grid-cols-1 gap-1 text-center text-muted-foreground text-xs">
+                              <div className="flex justify-between">
+                                <span>Maturité:</span>
+                                <span className="font-medium">
+                                  {seed.maturity === 0
+                                    ? "Immortel"
+                                    : `${seed.maturity} ticks`}
+                                </span>
+                              </div>
+                              {recipe && (
+                                <div className="flex justify-between">
+                                  <span>Chance:</span>
+                                  <span className="font-medium">
+                                    {recipe.chance}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Effet de la plante */}
+                            <div className="rounded border-t bg-muted/30 p-2 text-center text-xs">
+                              <div className="font-medium text-muted-foreground">
+                                {seed.effect}
+                              </div>
+                            </div>
+                          </div>
+                        </Button>
+
+                        {/* Indicateur visuel pour les graines disponibles */}
+                        {canBeUnlocked && !isOwned && (
+                          <div className="absolute top-0 right-0 h-0 w-0 border-t-[20px] border-t-amber-400 border-l-[20px] border-l-transparent">
+                            <div className="-right-[15px] -top-[18px] absolute text-white text-xs">
+                              ✨
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
