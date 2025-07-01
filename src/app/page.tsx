@@ -2,6 +2,12 @@
 
 import { CheckCircle, Circle, Target, Zap } from "lucide-react";
 import { useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 
 // Type definitions for layout objects
 interface LayoutConfig {
@@ -17,7 +23,7 @@ interface OptimalLayouts {
   };
 }
 
-const CookieClickerGardenGuide = () => {
+export default function Page() {
   // Starting seeds (available from beginning)
   const [ownedSeeds, setOwnedSeeds] = useState(["bakers-wheat"]);
 
@@ -907,7 +913,7 @@ const CookieClickerGardenGuide = () => {
       if (plant.pos < 36) {
         let seedType: string;
         if (plant.type.startsWith("parent")) {
-          const parentIndex = parseInt(plant.type.slice(-1)) - 1;
+          const parentIndex = Number.parseInt(plant.type.slice(-1)) - 1;
           seedType = recipe.parents[parentIndex];
         } else if (plant.type === "meddleweed") {
           // Special case for manual harvest layouts
@@ -932,47 +938,47 @@ const CookieClickerGardenGuide = () => {
     };
   };
 
-  // Get rarity color
-  const getRarityColor = (rarity: string) => {
+  // Get rarity variant
+  const getRarityVariant = (rarity: string) => {
     switch (rarity) {
       case "starter":
-        return "bg-gray-100 border-gray-300 text-gray-800";
+        return "secondary";
       case "common":
-        return "bg-green-100 border-green-300 text-green-800";
+        return "default";
       case "uncommon":
-        return "bg-blue-100 border-blue-300 text-blue-800";
+        return "secondary";
       case "rare":
-        return "bg-purple-100 border-purple-300 text-purple-800";
+        return "default";
       case "epic":
-        return "bg-yellow-100 border-yellow-300 text-yellow-800";
+        return "default";
       case "legendary":
-        return "bg-red-100 border-red-300 text-red-800";
+        return "destructive";
       default:
-        return "bg-gray-100 border-gray-300 text-gray-800";
+        return "secondary";
     }
   };
 
-  // Get difficulty color
-  const getDifficultyColor = (difficulty: string) => {
+  // Get difficulty variant
+  const getDifficultyVariant = (difficulty: string) => {
     switch (difficulty) {
       case "facile":
-        return "text-green-600 bg-green-50";
+        return "default";
       case "modéré":
-        return "text-blue-600 bg-blue-50";
+        return "secondary";
       case "difficile":
-        return "text-orange-600 bg-orange-50";
+        return "default";
       case "très difficile":
-        return "text-red-600 bg-red-50";
+        return "destructive";
       case "extrêmement difficile":
-        return "text-purple-600 bg-purple-50";
+        return "destructive";
       case "cauchemar":
-        return "text-red-800 bg-red-100";
+        return "destructive";
       case "impossible":
-        return "text-black bg-gray-200";
+        return "destructive";
       case "spécial":
-        return "text-indigo-600 bg-indigo-50";
+        return "outline";
       default:
-        return "text-gray-600 bg-gray-50";
+        return "secondary";
     }
   };
 
@@ -984,8 +990,10 @@ const CookieClickerGardenGuide = () => {
     ? getOptimalLayout(nextSeed)
     : { grid: Array(36).fill(null), zones: [], description: "" };
 
+  const progressPercentage = (ownedSeeds.length / allSeeds.length) * 100;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8 text-center">
@@ -995,188 +1003,170 @@ const CookieClickerGardenGuide = () => {
           <p className="text-gray-600">
             Guide basé sur la vraie mécanique du jeu avec placements optimisés
           </p>
-          <div className="mt-4 inline-block rounded-lg bg-white p-4 shadow-sm">
-            <div className="font-semibold text-green-600 text-lg">
-              Progression: {ownedSeeds.length}/{allSeeds.length} graines (
-              {((ownedSeeds.length / allSeeds.length) * 100).toFixed(1)}%)
-            </div>
-            <div className="mt-2 h-3 w-64 rounded-full bg-gray-200">
-              <div
-                className="h-3 rounded-full bg-green-500 transition-all duration-300"
-                style={{
-                  width: `${(ownedSeeds.length / allSeeds.length) * 100}%`,
-                }}
-              ></div>
-            </div>
-          </div>
+          <Card className="mt-4 inline-block">
+            <CardContent className="p-4">
+              <div className="font-semibold text-green-600 text-lg">
+                Progression: {ownedSeeds.length}/{allSeeds.length} graines (
+                {progressPercentage.toFixed(1)}%)
+              </div>
+              <Progress value={progressPercentage} className="mt-2 w-64" />
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Next step panel */}
           <div className="lg:col-span-1">
             {nextSeed && nextRecipe ? (
-              <div className="mb-6 rounded-lg bg-white p-6 shadow-lg">
-                <div className="mb-4 flex items-center gap-2">
-                  <Target className="text-blue-500" size={24} />
-                  <h2 className="font-bold text-gray-800 text-xl">
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="text-blue-500" size={24} />
                     Prochaine étape
-                  </h2>
-                </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="text-center">
+                    <div className="mb-2 text-4xl">
+                      {seedData[nextSeed as keyof typeof seedData].emoji}
+                    </div>
+                    <div className="font-semibold text-lg">
+                      {seedData[nextSeed as keyof typeof seedData].name}
+                    </div>
+                    <Badge
+                      variant={getRarityVariant(
+                        seedData[nextSeed as keyof typeof seedData].rarity,
+                      )}
+                      className="mt-2"
+                    >
+                      {seedData[nextSeed as keyof typeof seedData].rarity}
+                    </Badge>
+                  </div>
 
-                <div className="mb-4 text-center">
-                  <div className="mb-2 text-4xl">
-                    {seedData[nextSeed as keyof typeof seedData].emoji}
-                  </div>
-                  <div className="font-semibold text-lg">
-                    {seedData[nextSeed as keyof typeof seedData].name}
-                  </div>
-                  <div
-                    className={`inline-block rounded-full px-3 py-1 font-medium text-xs ${getRarityColor(seedData[nextSeed as keyof typeof seedData].rarity)}`}
-                  >
-                    {seedData[nextSeed as keyof typeof seedData].rarity}
-                  </div>
-                </div>
-
-                {/* Recipe and chance */}
-                <div className="mb-4 rounded-lg bg-blue-50 p-4">
-                  <div className="mb-2 font-semibold text-sm">Recette:</div>
-                  <div className="mb-2 flex flex-wrap justify-center gap-2">
-                    {[...new Set(nextRecipe.parents)].map((parent, idx) => (
-                      <div
-                        key={idx.toString()}
-                        className="flex items-center gap-1"
-                      >
-                        <div className="text-2xl">
-                          {seedData[parent as keyof typeof seedData].emoji}
+                  {/* Recipe and chance */}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="mb-2 font-semibold text-sm">Recette:</div>
+                      <div className="mb-2 flex flex-wrap justify-center gap-2">
+                        {[...new Set(nextRecipe.parents)].map((parent, idx) => (
+                          <div
+                            key={idx.toString()}
+                            className="flex items-center gap-1"
+                          >
+                            <div className="text-2xl">
+                              {seedData[parent as keyof typeof seedData].emoji}
+                            </div>
+                            {nextRecipe.parents.filter((p) => p === parent)
+                              .length > 1 && (
+                              <Badge variant="secondary" className="text-xs">
+                                x
+                                {
+                                  nextRecipe.parents.filter((p) => p === parent)
+                                    .length
+                                }
+                              </Badge>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="flex justify-between">
+                          <span>Chance de base:</span>
+                          <span className="font-bold">{nextRecipe.chance}</span>
                         </div>
-                        {nextRecipe.parents.filter((p) => p === parent).length >
-                          1 && (
-                          <div className="rounded-full bg-blue-200 px-2 py-1 text-xs">
-                            x
-                            {
-                              nextRecipe.parents.filter((p) => p === parent)
-                                .length
-                            }
+                        <div className="flex justify-between">
+                          <span>Avec Wood Chips:</span>
+                          <span className="font-bold text-blue-600">
+                            {typeof nextRecipe.baseChance === "number" &&
+                            nextRecipe.baseChance < 100
+                              ? `${(nextRecipe.baseChance * 3).toFixed(3)}%`
+                              : nextRecipe.chance}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Difficulté:</span>
+                          <Badge
+                            variant={getDifficultyVariant(
+                              nextRecipe.difficulty,
+                            )}
+                            className="text-xs"
+                          >
+                            {nextRecipe.difficulty}
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Maturité:</span>
+                          <span className="font-bold">
+                            {seedData[nextSeed as keyof typeof seedData]
+                              .maturity === 0
+                              ? "Immortel"
+                              : `${seedData[nextSeed as keyof typeof seedData].maturity} ticks`}
+                          </span>
+                        </div>
+                        {nextSeed === "golden-clover" && (
+                          <>
+                            <div className="flex justify-between text-amber-700">
+                              <span>Config Wiki Lvl 6:</span>
+                              <span className="font-bold">1.83%</span>
+                            </div>
+                            <div className="flex justify-between text-amber-700">
+                              <span>Avec Wood Chips:</span>
+                              <span className="font-bold">5.49%</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Strategy */}
+                  <Alert>
+                    <Target className="h-4 w-4" />
+                    <AlertDescription>
+                      <div className="space-y-2 text-sm">
+                        <div>
+                          <strong>Sol:</strong> {nextRecipe.soilStrategy}
+                        </div>
+                        <div>
+                          <strong>Description:</strong> {nextRecipe.description}
+                        </div>
+                        <div>
+                          <strong>Layout:</strong> {optimalLayout.description}
+                        </div>
+                        {nextRecipe.baseChance < 1 && (
+                          <div className="font-semibold text-red-700">
+                            ⚠️ Mutation rare - Wood Chips obligatoire !
                           </div>
                         )}
                       </div>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="flex justify-between">
-                      <span>Chance de base:</span>
-                      <span className="font-bold">{nextRecipe.chance}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Avec Wood Chips:</span>
-                      <span className="font-bold text-blue-600">
-                        {typeof nextRecipe.baseChance === "number" &&
-                        nextRecipe.baseChance < 100
-                          ? `${(nextRecipe.baseChance * 3).toFixed(3)}%`
-                          : nextRecipe.chance}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Difficulté:</span>
-                      <span
-                        className={`rounded px-2 py-1 font-bold ${getDifficultyColor(nextRecipe.difficulty)}`}
-                      >
-                        {nextRecipe.difficulty}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Maturité:</span>
-                      <span className="font-bold">
-                        {seedData[nextSeed as keyof typeof seedData]
-                          .maturity === 0
-                          ? "Immortel"
-                          : `${seedData[nextSeed as keyof typeof seedData].maturity} ticks`}
-                      </span>
-                    </div>
-                    {nextSeed === "golden-clover" && (
-                      <>
-                        <div className="flex justify-between text-amber-700">
-                          <span>Config Wiki Lvl 6:</span>
-                          <span className="font-bold">1.83%</span>
-                        </div>
-                        <div className="flex justify-between text-amber-700">
-                          <span>Avec Wood Chips:</span>
-                          <span className="font-bold">5.49%</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
+                    </AlertDescription>
+                  </Alert>
 
-                {/* Strategy */}
-                <div className="mb-4 rounded-lg bg-yellow-50 p-4">
-                  <div className="mb-2 font-semibold text-sm text-yellow-800">
-                    🎯 Stratégie optimale
-                  </div>
-                  <div className="space-y-2 text-xs">
-                    <div>
-                      <strong>Sol:</strong> {nextRecipe.soilStrategy}
-                    </div>
-                    <div>
-                      <strong>Description:</strong> {nextRecipe.description}
-                    </div>
-                    <div>
-                      <strong>Layout:</strong> {optimalLayout.description}
-                    </div>
-                    {nextRecipe.baseChance < 1 && (
-                      <div className="font-semibold text-red-700">
-                        ⚠️ Mutation rare - Wood Chips obligatoire !
-                      </div>
-                    )}
-                    {nextSeed === "golden-clover" && (
-                      <div className="rounded border-amber-500 border-l-4 bg-amber-100 p-2">
+                  {/* Special alerts for specific seeds */}
+                  {nextSeed === "golden-clover" && (
+                    <Alert>
+                      <AlertDescription>
                         <div className="font-semibold text-amber-800">
                           🍀 Golden Clover - Configuration Wiki
                         </div>
-                        <div className="text-amber-700 text-xs">
+                        <div className="text-amber-700 text-sm">
                           Level 6 Garden: 1,83% de probabilité avec Wood Chips
                           <br />8 Ordinary Clover disposés autour d'une case
                           centrale
                           <br />
                           Meilleur setup comparé à Baker's Wheat + Gildmillet
                         </div>
-                      </div>
-                    )}
-                    {nextSeed === "everdaisy" && (
-                      <div className="rounded border-green-500 border-l-4 bg-green-100 p-2">
-                        <div className="font-semibold text-green-800">
-                          🌼 Everdaisy - Lignes alternées
-                        </div>
-                        <div className="text-green-700 text-xs">
-                          Pattern: Tidygrass (ligne 1) / Vide (ligne 2) /
-                          Elderwort (ligne 3) / Vide (ligne 4)
-                          <br />
-                          Immortel quand entouré de fleurs - Ne jamais récolter
-                          !
-                        </div>
-                      </div>
-                    )}
-                    {nextSeed === "shriekbulb" && (
-                      <div className="rounded border-purple-500 border-l-4 bg-purple-100 p-2">
-                        <div className="font-semibold text-purple-800">
-                          🧅 Shriekbulb - Pattern en damier
-                        </div>
-                        <div className="text-purple-700 text-xs">
-                          Level 6: 10 mutations possibles avec Duketater
-                          <br />
-                          Damier alterné, Pebbles soil pour immortalité
-                          <br />
-                          Se propage tout seul - attention à l'envahissement !
-                        </div>
-                      </div>
-                    )}
-                    {(nextSeed === "brown-mold" ||
-                      nextSeed === "crumbspore") && (
-                      <div className="rounded border-orange-500 border-l-4 bg-orange-100 p-2">
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {(nextSeed === "brown-mold" || nextSeed === "crumbspore") && (
+                    <Alert>
+                      <AlertDescription>
                         <div className="font-semibold text-orange-800">
                           🍄 Brown Mold/Crumbspore - Récolte manuelle
                         </div>
-                        <div className="space-y-1 text-orange-700 text-xs">
+                        <div className="space-y-1 text-orange-700 text-sm">
                           <div>
                             <strong>Étape 1:</strong> Fertilizer - plante
                             plusieurs Meddleweed espacés
@@ -1202,114 +1192,105 @@ const CookieClickerGardenGuide = () => {
                           </div>
                           <div>Chance = âge × 0.2% (max 19.8% à âge 99)</div>
                         </div>
-                      </div>
-                    )}
-                    {nextSeed === "juicy-queenbeet" && (
-                      <div className="rounded border-red-500 border-l-4 bg-red-100 p-2">
-                        <div className="font-semibold text-red-800">
-                          🥬 Juicy Queenbeet - LE BOSS FINAL
-                        </div>
-                        <div className="text-red-700 text-xs">
-                          8 Queenbeet en cercle parfait, TOUS matures
-                          simultanément
-                          <br />
-                          Peut prendre des semaines - 0.001% de chance !<br />
-                          Donne +1 Sugar Lump au sacrifice du jardin
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
 
-                {/* Optimal layout visualization */}
-                <div className="rounded-lg bg-gray-50 p-4">
-                  <div className="mb-2 text-center font-semibold text-sm">
-                    Layout optimisé (6x6):
-                    {(nextSeed === "brown-mold" ||
-                      nextSeed === "crumbspore") && (
-                      <span className="text-orange-600">
-                        {" "}
-                        - Récolte Manuelle
-                      </span>
-                    )}
-                  </div>
-                  <div className="mx-auto mb-3 grid max-w-48 grid-cols-6 gap-1">
-                    {optimalLayout.grid.map((cell, idx) => (
-                      <div
-                        key={idx.toString()}
-                        className={`flex h-6 w-6 items-center justify-center rounded border text-xs ${
-                          cell
-                            ? (
+                  {/* Optimal layout visualization */}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="mb-2 text-center font-semibold text-sm">
+                        Layout optimisé (6x6):
+                        {(nextSeed === "brown-mold" ||
+                          nextSeed === "crumbspore") && (
+                          <span className="text-orange-600">
+                            {" "}
+                            - Récolte Manuelle
+                          </span>
+                        )}
+                      </div>
+                      <div className="mx-auto mb-3 grid max-w-48 grid-cols-6 gap-1">
+                        {optimalLayout.grid.map((cell, idx) => (
+                          <div
+                            key={idx.toString()}
+                            className={`flex h-6 w-6 items-center justify-center rounded border text-xs ${
+                              cell
+                                ? (
+                                    nextSeed === "brown-mold" ||
+                                      nextSeed === "crumbspore"
+                                  )
+                                  ? "border-orange-300 bg-orange-100"
+                                  : "border-blue-300 bg-blue-100"
+                                : optimalLayout.zones.includes(idx)
+                                  ? "border-yellow-400 bg-yellow-100"
+                                  : "border-gray-200 bg-gray-100"
+                            }`}
+                            title={
+                              cell
+                                ? `${seedData[cell as keyof typeof seedData]?.name}${nextSeed === "brown-mold" || nextSeed === "crumbspore" ? " (à récolter manuellement)" : ""}`
+                                : optimalLayout.zones.includes(idx)
+                                  ? "Zone de mutation"
+                                  : "Vide"
+                            }
+                          >
+                            {cell && seedData[cell as keyof typeof seedData]
+                              ? seedData[cell as keyof typeof seedData].emoji
+                              : optimalLayout.zones.includes(idx)
+                                ? "✨"
+                                : (nextSeed === "brown-mold" ||
+                                      nextSeed === "crumbspore") &&
+                                    !cell
+                                  ? "👆"
+                                  : ""}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="space-y-1 text-center text-sm">
+                        <div className="flex items-center justify-center gap-4 text-xs">
+                          <div className="flex items-center gap-1">
+                            <div
+                              className={`h-3 w-3 rounded border ${
                                 nextSeed === "brown-mold" ||
-                                  nextSeed === "crumbspore"
-                              )
-                              ? "border-orange-300 bg-orange-100"
-                              : "border-blue-300 bg-blue-100"
-                            : optimalLayout.zones.includes(idx)
-                              ? "border-yellow-400 bg-yellow-100"
-                              : "border-gray-200 bg-gray-100"
-                        }`}
-                        title={
-                          cell
-                            ? `${seedData[cell as keyof typeof seedData]?.name}${nextSeed === "brown-mold" || nextSeed === "crumbspore" ? " (à récolter manuellement)" : ""}`
-                            : optimalLayout.zones.includes(idx)
-                              ? "Zone de mutation"
-                              : "Vide"
-                        }
-                      >
-                        {cell && seedData[cell as keyof typeof seedData]
-                          ? seedData[cell as keyof typeof seedData].emoji
-                          : optimalLayout.zones.includes(idx)
-                            ? "✨"
-                            : (nextSeed === "brown-mold" ||
-                                  nextSeed === "crumbspore") &&
-                                !cell
-                              ? "👆"
-                              : ""}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="space-y-1 text-center text-sm">
-                    <div className="flex items-center justify-center gap-4 text-xs">
-                      <div className="flex items-center gap-1">
-                        <div
-                          className={`h-3 w-3 rounded border ${
-                            nextSeed === "brown-mold" ||
-                            nextSeed === "crumbspore"
-                              ? "border-orange-300 bg-orange-100"
-                              : "border-blue-300 bg-blue-100"
-                          }`}
-                        ></div>
-                        <span>
-                          {nextSeed === "brown-mold" ||
-                          nextSeed === "crumbspore"
-                            ? `Meddleweed (${optimalLayout.grid.filter(Boolean).length})`
-                            : `Plantes (${optimalLayout.grid.filter(Boolean).length})`}
-                        </span>
-                      </div>
-                      {optimalLayout.zones.length > 0 && (
-                        <div className="flex items-center gap-1">
-                          <div className="h-3 w-3 rounded border border-yellow-400 bg-yellow-100"></div>
-                          <span>Mutations ({optimalLayout.zones.length})</span>
+                                nextSeed === "crumbspore"
+                                  ? "border-orange-300 bg-orange-100"
+                                  : "border-blue-300 bg-blue-100"
+                              }`}
+                            ></div>
+                            <span>
+                              {nextSeed === "brown-mold" ||
+                              nextSeed === "crumbspore"
+                                ? `Meddleweed (${optimalLayout.grid.filter(Boolean).length})`
+                                : `Plantes (${optimalLayout.grid.filter(Boolean).length})`}
+                            </span>
+                          </div>
+                          {optimalLayout.zones.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              <div className="h-3 w-3 rounded border border-yellow-400 bg-yellow-100"></div>
+                              <span>
+                                Mutations ({optimalLayout.zones.length})
+                              </span>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    {(nextSeed === "brown-mold" ||
-                      nextSeed === "crumbspore") && (
-                      <div className="font-semibold text-orange-600 text-xs">
-                        👆 Clique individuellement sur chaque Meddleweed vieux
+                        {(nextSeed === "brown-mold" ||
+                          nextSeed === "crumbspore") && (
+                          <div className="font-semibold text-orange-600 text-xs">
+                            👆 Clique individuellement sur chaque Meddleweed
+                            vieux
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+                    </CardContent>
+                  </Card>
+                </CardContent>
+              </Card>
             ) : (
-              <div className="mb-6 rounded-lg bg-white p-6 shadow-lg">
-                <div className="text-center">
+              <Card className="mb-6">
+                <CardContent className="p-6 text-center">
                   <div className="mb-4 text-4xl">🎉</div>
-                  <h2 className="mb-2 font-bold text-2xl text-green-600">
+                  <CardTitle className="mb-2 text-2xl text-green-600">
                     Félicitations !
-                  </h2>
+                  </CardTitle>
                   <p className="text-gray-600">
                     Toutes les graines sont débloquées !
                   </p>
@@ -1317,269 +1298,259 @@ const CookieClickerGardenGuide = () => {
                     Tu peux maintenant sacrifier ton jardin pour 10 Sugar Lumps
                     !
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             )}
 
             {/* Soil guide */}
-            <div className="rounded-lg bg-white p-6 shadow-lg">
-              <h3 className="mb-4 font-bold text-gray-800 text-lg">
-                Guide des sols
-              </h3>
-              <div className="space-y-3 text-sm">
-                <div className="border-orange-400 border-l-4 bg-orange-50 p-3">
-                  <div className="font-semibold text-orange-800">
-                    🌱 Fertilizer (3 min/tick)
-                  </div>
-                  <div className="text-orange-700">
-                    Croissance RAPIDE - Pour faire pousser
-                  </div>
-                </div>
-                <div className="border-amber-400 border-l-4 bg-amber-50 p-3">
-                  <div className="font-semibold text-amber-800">
-                    🪵 Wood Chips (10 min/tick)
-                  </div>
-                  <div className="text-amber-700">
-                    Mutations x3 - OBLIGATOIRE pour muter
-                  </div>
-                </div>
-                <div className="border-stone-400 border-l-4 bg-stone-50 p-3">
-                  <div className="font-semibold text-stone-800">
-                    🧱 Clay (15 min/tick)
-                  </div>
-                  <div className="text-stone-700">
-                    Vieillissement lent - Pour conserver
-                  </div>
-                </div>
-                <div className="border-gray-400 border-l-4 bg-gray-50 p-3">
-                  <div className="font-semibold text-gray-800">
-                    🪨 Pebbles (35% drop chance)
-                  </div>
-                  <div className="text-gray-700">
-                    Pour Elderwort immortel et drops garantis
-                  </div>
-                </div>
-                <div className="border-lime-400 border-l-4 bg-lime-50 p-3">
-                  <div className="font-semibold text-lime-800">
-                    🌿 Dirt (pas de bonus)
-                  </div>
-                  <div className="text-lime-700">
-                    Sol de base - non recommandé
-                  </div>
-                </div>
-              </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Guide des sols</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Alert>
+                  <AlertDescription>
+                    <div className="font-semibold text-orange-800">
+                      🌱 Fertilizer (3 min/tick)
+                    </div>
+                    <div className="text-orange-700">
+                      Croissance RAPIDE - Pour faire pousser
+                    </div>
+                  </AlertDescription>
+                </Alert>
 
-              <div className="mt-4 rounded-lg bg-red-50 p-3">
-                <div className="mb-2 font-semibold text-red-800 text-sm">
-                  ⚠️ Attention Contamination:
-                </div>
-                <div className="space-y-1 text-red-700 text-xs">
-                  <div>
-                    • <strong>Meddleweed:</strong> Contamine orthogonalement
-                    (haut/bas/gauche/droite)
-                  </div>
-                  <div>
-                    • <strong>Crumbspore:</strong> Peut contaminer les plantes
-                    adjacentes
-                  </div>
-                  <div>
-                    • <strong>Protection:</strong> Laisse des cases vides entre
-                    les plants importants
-                  </div>
-                  <div>
-                    • <strong>Récolte préventive:</strong> Récolte avant qu'ils
-                    contaminent
-                  </div>
-                </div>
-              </div>
+                <Alert>
+                  <AlertDescription>
+                    <div className="font-semibold text-amber-800">
+                      🪵 Wood Chips (10 min/tick)
+                    </div>
+                    <div className="text-amber-700">
+                      Mutations x3 - OBLIGATOIRE pour muter
+                    </div>
+                  </AlertDescription>
+                </Alert>
 
-              <div className="mt-4 rounded-lg bg-green-50 p-3">
-                <div className="mb-2 font-semibold text-green-800 text-sm">
-                  💡 Stratégie générale:
-                </div>
-                <div className="space-y-1 text-green-700 text-xs">
-                  <div>
-                    1. <strong>Fertilizer</strong> pour croissance rapide
-                  </div>
-                  <div>
-                    2. <strong>Wood Chips</strong> dès que matures pour muter
-                    (x3 chance)
-                  </div>
-                  <div>
-                    3. <strong>Clay</strong> pour prolonger la durée de vie
-                  </div>
-                  <div>
-                    4. <strong>Pebbles</strong> pour Elderwort immortel (35%
-                    drop chance)
-                  </div>
-                </div>
-              </div>
+                <Alert>
+                  <AlertDescription>
+                    <div className="font-semibold text-stone-800">
+                      🧱 Clay (15 min/tick)
+                    </div>
+                    <div className="text-stone-700">
+                      Vieillissement lent - Pour conserver
+                    </div>
+                  </AlertDescription>
+                </Alert>
 
-              <div className="mt-4 rounded-lg bg-blue-50 p-3">
-                <div className="mb-2 font-semibold text-blue-800 text-sm">
-                  🧠 Conseils avancés Wiki:
-                </div>
-                <div className="space-y-1 text-blue-700 text-xs">
-                  <div>
-                    • <strong>Synchronisation:</strong> Plante Baker's Wheat,
-                    attends 2 ticks, puis Thumbcorn
-                  </div>
-                  <div>
-                    • <strong>Brown Mold:</strong> Clay après maturité, âge 50+
-                    optimal (chance = âge × 0.2%)
-                  </div>
-                  <div>
-                    • <strong>Golden Clover:</strong> 4 Ordinary Clovers autour
-                    = 1.83% optimal
-                  </div>
-                  <div>
-                    • <strong>Contamination:</strong> Meddleweed/Crumbspore
-                    contaminent orthogonalement
-                  </div>
-                  <div>
-                    • <strong>Juicy Queenbeet:</strong> Plusieurs cercles 3x3
-                    possibles
-                  </div>
-                  <div>
-                    • <strong>Save-scumming:</strong> Sauvegarde avant tick pour
-                    retry
-                  </div>
-                  <div>
-                    • <strong>Clay timing:</strong> Change 1 tick avant
-                    d'utiliser l'effet complet
-                  </div>
-                </div>
-              </div>
-            </div>
+                <Alert>
+                  <AlertDescription>
+                    <div className="font-semibold text-gray-800">
+                      🪨 Pebbles (35% drop chance)
+                    </div>
+                    <div className="text-gray-700">
+                      Pour Elderwort immortel et drops garantis
+                    </div>
+                  </AlertDescription>
+                </Alert>
+
+                <Separator />
+
+                <Alert variant="destructive">
+                  <AlertDescription>
+                    <div className="mb-2 font-semibold text-sm">
+                      ⚠️ Attention Contamination:
+                    </div>
+                    <div className="space-y-1 text-xs">
+                      <div>
+                        • <strong>Meddleweed:</strong> Contamine orthogonalement
+                        (haut/bas/gauche/droite)
+                      </div>
+                      <div>
+                        • <strong>Crumbspore:</strong> Peut contaminer les
+                        plantes adjacentes
+                      </div>
+                      <div>
+                        • <strong>Protection:</strong> Laisse des cases vides
+                        entre les plants importants
+                      </div>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+
+                <Alert>
+                  <AlertDescription>
+                    <div className="mb-2 font-semibold text-green-800 text-sm">
+                      💡 Stratégie générale:
+                    </div>
+                    <div className="space-y-1 text-green-700 text-xs">
+                      <div>
+                        1. <strong>Fertilizer</strong> pour croissance rapide
+                      </div>
+                      <div>
+                        2. <strong>Wood Chips</strong> dès que matures pour
+                        muter (x3 chance)
+                      </div>
+                      <div>
+                        3. <strong>Clay</strong> pour prolonger la durée de vie
+                      </div>
+                      <div>
+                        4. <strong>Pebbles</strong> pour Elderwort immortel (35%
+                        drop chance)
+                      </div>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
           </div>
 
           {/* All seeds list */}
           <div className="lg:col-span-2">
-            <div className="rounded-lg bg-white p-6 shadow-lg">
-              <h2 className="mb-6 font-bold text-2xl text-gray-800">
-                Toutes les graines
-              </h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>Toutes les graines</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  {allSeeds.map((seedKey, index) => {
+                    const seed = seedData[seedKey as keyof typeof seedData];
+                    const isOwned = ownedSeeds.includes(seedKey);
+                    const canBeUnlocked = canUnlock(seedKey);
+                    const recipe =
+                      mutationRecipes[seedKey as keyof typeof mutationRecipes];
 
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                {allSeeds.map((seedKey, index) => {
-                  const seed = seedData[seedKey as keyof typeof seedData];
-                  const isOwned = ownedSeeds.includes(seedKey);
-                  const canBeUnlocked = canUnlock(seedKey);
-                  const recipe =
-                    mutationRecipes[seedKey as keyof typeof mutationRecipes];
-
-                  return (
-                    <button
-                      type="button"
-                      key={seedKey}
-                      onClick={() => toggleSeed(seedKey)}
-                      className={`rounded-lg border-2 p-3 transition-all hover:scale-105 ${
-                        isOwned
-                          ? "border-green-500 bg-green-50"
-                          : canBeUnlocked
-                            ? "animate-pulse border-yellow-400 bg-yellow-50"
-                            : "border-gray-200 bg-gray-50 opacity-60"
-                      }`}
-                    >
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="font-bold text-gray-500 text-xs">
-                          #{index + 1}
-                        </span>
-                        {isOwned ? (
-                          <CheckCircle className="text-green-500" size={16} />
-                        ) : (
-                          <Circle className="text-gray-300" size={16} />
-                        )}
-                      </div>
-
-                      <div className="mb-2 text-2xl">{seed.emoji}</div>
-
-                      <div className="mb-1 font-semibold text-gray-800 text-xs">
-                        {seed.name}
-                      </div>
-
-                      <div
-                        className={`mb-1 rounded-full px-2 py-1 text-xs ${getRarityColor(seed.rarity)}`}
+                    return (
+                      <Button
+                        key={seedKey}
+                        onClick={() => toggleSeed(seedKey)}
+                        variant={isOwned ? "default" : "outline"}
+                        className={`h-auto min-h-[280px] w-full flex-col p-4 transition-all hover:scale-105 ${
+                          canBeUnlocked && !isOwned ? "animate-pulse" : ""
+                        }`}
                       >
-                        {seed.rarity}
-                      </div>
-
-                      {recipe && (
-                        <div
-                          className={`mb-1 rounded px-2 py-1 text-xs ${getDifficultyColor(recipe.difficulty)}`}
-                        >
-                          {recipe.difficulty}
+                        {/* Header avec index et statut */}
+                        <div className="mb-3 flex w-full items-center justify-between">
+                          <Badge
+                            variant="outline"
+                            className={`font-medium text-xs ${
+                              isOwned
+                                ? "border-primary-foreground bg-primary-foreground text-primary"
+                                : "border-border bg-background text-foreground"
+                            }`}
+                          >
+                            #{index + 1}
+                          </Badge>
+                          {isOwned ? (
+                            <CheckCircle
+                              className={`${isOwned ? "text-primary-foreground" : "text-green-500"}`}
+                              size={18}
+                            />
+                          ) : (
+                            <Circle className="text-gray-300" size={18} />
+                          )}
                         </div>
-                      )}
 
-                      <div className="mb-1 text-gray-600 text-xs">
-                        Maturité: {seed.maturity} ticks
-                      </div>
+                        {/* Emoji */}
+                        <div className="mb-3 text-3xl">{seed.emoji}</div>
 
-                      {recipe && (
-                        <div className="text-gray-600 text-xs">
-                          Chance: {recipe.chance}
+                        {/* Nom de la graine */}
+                        <div className="mb-3 px-1 text-center font-semibold text-sm leading-tight">
+                          {seed.name}
                         </div>
-                      )}
 
-                      {canBeUnlocked && !isOwned && (
-                        <div className="mt-2">
-                          <Zap className="mx-auto text-yellow-500" size={16} />
-                          <div className="font-medium text-xs text-yellow-600">
-                            Disponible !
+                        {/* Badges de rareté et difficulté */}
+                        <div className="mb-3 flex w-full flex-col gap-2">
+                          <Badge
+                            variant={getRarityVariant(seed.rarity)}
+                            className="py-1 text-xs"
+                          >
+                            {seed.rarity}
+                          </Badge>
+
+                          {recipe && (
+                            <Badge
+                              variant={getDifficultyVariant(recipe.difficulty)}
+                              className="py-1 text-xs"
+                            >
+                              {recipe.difficulty}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* Informations détaillées */}
+                        <div className="mb-3 flex flex-col gap-1 text-center text-xs opacity-75">
+                          <div>
+                            Maturité:{" "}
+                            {seed.maturity === 0
+                              ? "Immortel"
+                              : `${seed.maturity} ticks`}
                           </div>
+                          {recipe && <div>Chance: {recipe.chance}</div>}
                         </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
 
-              {/* Quick actions */}
-              <div className="mt-6 flex flex-wrap justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setOwnedSeeds(["bakers-wheat"])}
-                  className="rounded-lg bg-blue-500 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-600"
-                >
-                  Reset (départ)
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setOwnedSeeds([
-                      "bakers-wheat",
-                      "meddleweed",
-                      "thumbcorn",
-                      "cronerice",
-                      "bakeberry",
-                    ])
-                  }
-                  className="rounded-lg bg-green-500 px-4 py-2 text-sm text-white transition-colors hover:bg-green-600"
-                >
-                  Base complète
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOwnedSeeds([...allSeeds])}
-                  className="rounded-lg bg-purple-500 px-4 py-2 text-sm text-white transition-colors hover:bg-purple-600"
-                >
-                  Tout débloquer
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOwnedSeeds([])}
-                  className="rounded-lg bg-red-500 px-4 py-2 text-sm text-white transition-colors hover:bg-red-600"
-                >
-                  Tout effacer
-                </button>
-              </div>
-            </div>
+                        {/* Indicateur de disponibilité */}
+                        <div className="mt-auto flex min-h-[2.5rem] items-center justify-center">
+                          {canBeUnlocked && !isOwned && (
+                            <div className="text-center">
+                              <Zap
+                                className="mx-auto mb-1 text-yellow-500"
+                                size={18}
+                              />
+                              <div className="font-medium text-xs text-yellow-600">
+                                Disponible !
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                {/* Quick actions */}
+                <Separator className="my-6" />
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Button
+                    onClick={() => setOwnedSeeds(["bakers-wheat"])}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Reset (départ)
+                  </Button>
+                  <Button
+                    onClick={() =>
+                      setOwnedSeeds([
+                        "bakers-wheat",
+                        "meddleweed",
+                        "thumbcorn",
+                        "cronerice",
+                        "bakeberry",
+                      ])
+                    }
+                    variant="outline"
+                    size="sm"
+                  >
+                    Base complète
+                  </Button>
+                  <Button
+                    onClick={() => setOwnedSeeds([...allSeeds])}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Tout débloquer
+                  </Button>
+                  <Button
+                    onClick={() => setOwnedSeeds([])}
+                    variant="destructive"
+                    size="sm"
+                  >
+                    Tout effacer
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default CookieClickerGardenGuide;
+}
