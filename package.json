@@ -9,7 +9,8 @@
     "lint": "next lint",
     "format": "biome format --write",
     "lint:fix": "biome lint --write",
-    "check": "biome check --write --unsafe"
+    "check": "biome check --write --unsafe",
+    "prepare": "husky"
   },
   "dependencies": {
     "react": "^19.0.0",
@@ -22,6 +23,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "husky": "^9.1.7",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
