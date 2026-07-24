@@ -39,7 +39,7 @@
     "typescript": "^5"
   },
   "lint-staged": {
-    "*.{js,ts,tsx,jsx,json,css,md}": [
+    "*.{js,ts,tsx,jsx,json,css}": [
       "biome check --write --unsafe",
       "git add"
     ]
