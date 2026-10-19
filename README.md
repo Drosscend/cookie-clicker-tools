@@ -22,7 +22,7 @@ Le mini-jeu du jardin repose sur des croisements entre plantes voisines : deux p
 - [Biome](https://biomejs.dev/) pour le formatage et l'analyse, avec un crochet de pré-commit
 - [Bun](https://bun.sh/) comme gestionnaire de paquets
 
-Volontairement sans bibliothèque de gestion d'état ni client de requêtes : l'outil n'en a pas besoin.
+La progression vit dans un simple état React : elle n'est pas sauvegardée et repart du début à chaque rechargement.
 
 ## Démarrage local
 
@@ -46,4 +46,4 @@ L'application est disponible sur [http://localhost:3000](http://localhost:3000),
 
 ## État du projet
 
-Seul le guide du jardin est réellement implémenté. La page d'accueil liste d'autres outils (calculateur de production, optimiseur de bâtiments, assistant pour la bourse, etc.) qui sont restés à l'état d'intentions.
+Seul le guide du jardin est implémenté. D'autres outils (calculateur de production, optimiseur de bâtiments, assistant pour la bourse, etc.) sont listés dans `src/lib/data/tools.ts`, sans page derrière : la page d'accueil n'affiche que le jardin.
